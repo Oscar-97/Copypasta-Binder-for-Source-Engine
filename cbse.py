@@ -16,7 +16,7 @@ class CBSE:
             button_frame, text="Choose a file", command=self.pick_file)
         self.pick_button.pack(side=tk.LEFT, padx=5, pady=5, anchor=tk.W)
 
-        # Filename button.
+        # Filename label.
         self.filename_label = tk.Label(master)
         self.filename_label.pack(side=tk.TOP, padx=5, pady=5, fill=tk.X)
 
