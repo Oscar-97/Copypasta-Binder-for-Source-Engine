@@ -1,6 +1,4 @@
 import tkinter as tk
-from tkinter import filedialog
-import sv_ttk
 from cbse import CBSE
 
 if __name__ == "__main__":
