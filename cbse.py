@@ -1,40 +1,76 @@
 import tkinter as tk
+from tkinter import ttk
 from tkinter import filedialog
-import sv_ttk
+import telnetlib
+import time
+import sys
+from tkinter import messagebox
+
 
 class CBSE:
     def __init__(self, master):
         self.root = master
         self.filename = None
 
-       # Create a frame to hold the buttons.
-        button_frame = tk.Frame(master)
-        button_frame.pack(side=tk.TOP, fill=tk.X)
+        self.setup_ui()
 
-        # Choose file button.
-        self.pick_button = tk.Button(
-            button_frame, text="Choose a file", command=self.pick_file)
-        self.pick_button.pack(side=tk.LEFT, padx=5, pady=5, anchor=tk.W)
+    def setup_ui(self):
+        # Create a frame to hold the buttons.
+        button_frame = ttk.Frame(self.root)
+        button_frame.grid(row=0, sticky='ew')
+        
+        ip_port_frame = ttk.Frame(self.root)
+        ip_port_frame.grid(row=7, padx=5, pady=5, sticky='ew')
 
-        # Filename label.
-        self.filename_label = tk.Label(master)
-        self.filename_label.pack(side=tk.TOP, padx=5, pady=5, fill=tk.X)
+        # Create the buttons.
+        self.pick_button = self.create_button(
+            button_frame, "Choose a file", self.pick_file, 0)
+        self.convert_button = self.create_button(
+            button_frame, "Convert to bind", self.convert, 1)
+        self.download_button = self.create_button(
+            button_frame, "Save as CFG", self.save_file, 2)
+        self.remote_button = self.create_button(
+            button_frame, "Remote", self.say_chat, 3)
+        self.clear_button = self.create_button(
+            button_frame, "Clear", self.clear_chat, 4)
 
-        # Convert button.
-        self.convert_button = tk.Button(
-            button_frame, text="Convert to bind", command=self.convert)
-        self.convert_button.pack(side=tk.LEFT, padx=5, pady=5, anchor=tk.W)
+        # Create the labels.
+        self.filename_label = self.create_label("Path to selected file...", 1)
+        self.labelfile = self.create_label("CFG Content", 3)
+        self.labelremote = self.create_label("Direct Chat In-game", 5)
 
-        # Download button.
-        self.download_button = tk.Button(
-            button_frame, text="Save as CFG", command=self.save_file)
-        self.download_button.pack(side=tk.LEFT, padx=5, pady=5, anchor=tk.W)
+        # Create the textboxes.
+        self.textbox = self.create_textbox(4)
+        self.textboxchat = self.create_textbox(6)
 
-        # Text box field.
-        self.textbox = tk.Text(master, height=50, width=100, wrap='word')
-        self.textbox.pack()
+        self.ip_entry = self.create_entry(ip_port_frame, 0, 0, "192.168.1.220", width=40)
+        self.port_entry = self.create_entry(ip_port_frame, 0, 1, "2024", width=5)
 
-        sv_ttk.set_theme("dark")
+        ip_port_frame.grid_columnconfigure(0, weight=85)
+        ip_port_frame.grid_columnconfigure(1, weight=15)
+
+    def create_button(self, frame, text, command, column):
+        button = ttk.Button(frame, text=text, command=command)
+        button.grid(row=0, column=column, padx=5, pady=5)
+        return button
+
+    def create_label(self, text, row):
+        label = ttk.Label(self.root, text=text)
+        label.grid(row=row, padx=5, pady=5, sticky='ew')
+        return label
+
+    def create_textbox(self, row):
+        textbox = tk.Text(self.root, height=10, width=60,
+                          wrap='word', borderwidth=2, relief="flat")
+        textbox.grid(row=row, padx=5, pady=5, sticky='ew')
+        textbox.configure(background="#262626")
+        return textbox
+
+    def create_entry(self, frame, row, column, placeholder, width=None):
+            entry = ttk.Entry(frame, width=width)
+            entry.grid(row=row, column=column, padx=5, pady=5, sticky='ew')
+            entry.insert(0, placeholder)
+            return entry
 
     def pick_file(self):
         self.filename = filedialog.askopenfilename()
@@ -44,7 +80,7 @@ class CBSE:
         with open(filename, 'r', encoding='utf-8') as f:
             return f.read()
 
-    def split_text(self, text, max_chars=50, max_words=10):
+    def split_text(self, text, max_chars=110, max_words=20):
         words = text.split()
         lines = []
         current_line = []
@@ -81,7 +117,7 @@ class CBSE:
 
             sentences = self.split_text(file_content)
             str_alias = "alias"
-            str_spam = "boko"
+            str_spam = "spam"
             str_first_spam = str_spam + "{}"
             bind_button = f'bind "INS" "{str_spam}"'
             first_alias = f'{str_alias} "{str_spam}" "{str_spam}1"'
@@ -91,7 +127,11 @@ class CBSE:
             self.textbox.insert(tk.END, bind_button + "\n")
             self.textbox.insert(tk.END, first_alias + "\n")
 
+            self.textboxchat.delete("1.0", tk.END)
+
             for i, sentence in enumerate(sentences):
+                print(sentence)
+                self.textboxchat.insert(tk.END, sentence + "\n")
                 counter += 1
                 modified_sentence = self.generate_modified_sentence(
                     sentence, counter, str_alias, str_spam, str_first_spam, len(sentences))
@@ -104,6 +144,31 @@ class CBSE:
         filename = tk.filedialog.asksaveasfilename(defaultextension=".cfg")
         with open(filename, "w") as f:
             f.write(text_content)
+
+    def say_chat(self):
+        tn_host = self.ip_entry.get()
+        tn_port = self.port_entry.get()
+        try:
+            tn = telnetlib.Telnet(tn_host, tn_port)
+        except ConnectionRefusedError:
+            error_message = "Connection Refused. Ensure that a source game is open and that you have the following launch option set: -netconport " + \
+                str(tn_port)
+            messagebox.showerror("Error", error_message)
+            print(error_message)
+            sys.exit(1)
+        text_content = self.textboxchat.get("1.0", tk.END)
+        lines = text_content.splitlines()
+        for line in lines:
+            line = "say " + line + "\n"
+            line = line.encode("utf-8")
+            tn.write(line)
+            time.sleep(2)
+        print("Printed to console.")
+
+    def clear_chat(self):
+        self.textbox.delete("1.0", tk.END)
+        self.textboxchat.delete("1.0", tk.END)
+        self.filename_label.config(text='')
 
     def run(self):
         self.root.mainloop()
