@@ -1,6 +1,10 @@
+"""
+CBSE project in progress.
+"""
 import tkinter as tk
-from cbse import CBSE
 import sv_ttk
+from cbse import CBSE
+
 
 if __name__ == "__main__":
     root = tk.Tk()
