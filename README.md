@@ -6,4 +6,4 @@
 3. Save the .cfg file in `...\Steam\steamapps\common\Counter-Strike Global Offensive\csgo\cfg` and execute it in game.
 4. Or set -netconport `<number>` in launch options, together with host and port in the application to automatically spam in game. Click the remote button to start the process.
 
-![alt text](preview.png)
+![alt text](./resources/preview.png)
