@@ -51,7 +51,7 @@ class CBSEFunctions:
         """
         spam_alias = str_first_spam.format(counter)
 
-        if sentence == sentences_len - 1:
+        if counter == sentences_len:
             modified_sentence = f'{str_alias} "{spam_alias}" "say {sentence.strip()}; {str_alias} {str_spam} {str_spam}1"'
         else:
             spam_alias_second = str_first_spam.format(counter+1)
