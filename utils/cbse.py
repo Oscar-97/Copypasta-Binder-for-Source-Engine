@@ -41,7 +41,7 @@ class CBSE:
         self.buttons = self.create_buttons(button_frame)
 
         # Create the labels.
-        self.filename_label = self.create_label("Path to selected file...", 1)
+        self.filename_label = self.create_label("Path to selected file...", 1, ("Calibri", 12, "italic"))
         self.labelfile = self.create_label("CFG Content", 3)
         self.labelremote = self.create_label("Direct Chat In-game", 5)
 
@@ -82,11 +82,11 @@ class CBSE:
         button.grid(row=0, column=column, padx=5, pady=5)
         return button
 
-    def create_label(self, text, row):
+    def create_label(self, text, row, custom_font=("Calibri", 12, "normal")):
         """
         Returns a label.
         """
-        label = ttk.Label(self.root, text=text)
+        label = ttk.Label(self.root, text=text, font=custom_font)
         label.grid(row=row, padx=5, pady=5, sticky='ew')
         return label
 
