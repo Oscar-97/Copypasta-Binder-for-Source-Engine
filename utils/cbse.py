@@ -41,7 +41,8 @@ class CBSE:
         self.buttons = self.create_buttons(button_frame)
 
         # Create the labels.
-        self.filename_label = self.create_label("Path to selected file...", 1, ("Calibri", 12, "italic"))
+        self.filename_label = self.create_label(
+            "Path to selected file...", 1, ("Calibri", 12, "italic"))
         self.labelfile = self.create_label("CFG Content", 3)
         self.labelremote = self.create_label("Direct Chat In-game", 5)
 

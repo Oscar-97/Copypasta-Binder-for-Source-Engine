@@ -1,5 +1,5 @@
 """
-CBSE project in progress.
+CBSE GUI project.
 """
 import tkinter as tk
 import sv_ttk
