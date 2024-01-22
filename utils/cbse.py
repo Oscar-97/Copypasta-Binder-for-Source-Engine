@@ -1,6 +1,7 @@
 """
 This module provides classes and functions for creating a graphical user interface using Tkinter.
 """
+import re
 import tkinter as tk
 from tkinter import ttk, filedialog
 from utils.cbse_functions import CBSEFunctions
@@ -15,6 +16,7 @@ class CBSE:
 
     def __init__(self, master):
         self.root = master
+        self.root.resizable(False, False)
         self.filename = None
         self.buttons = None
         self.filename_label = None
@@ -145,6 +147,51 @@ class CBSE:
                 modified_sentence = cbse_functions.generate_modified_sentence(
                     sentence[1], counter, str_alias, str_spam, str_first_spam, len(sentences))
                 self.textbox.insert(tk.END, modified_sentence + "\n")
+
+            syntax_to_highlight = {
+                "spam\\d*": "#7E57C2",
+                "bind": "#B39DDB",
+                "say": "#B39DDB",
+                "alias": "#F06292",
+                "INS": "#F52068",
+                "say_pattern": "#9CCC65",
+            }
+
+            def highlight_words(syntax_to_highlight):
+                """
+                Function to apply color to specific words
+                """
+                for word, color in syntax_to_highlight.items():
+                    start_pos = '1.0'
+                    while True:
+                        # Find the starting position of the word or pattern
+                        if word == "say_pattern":  # Specific handling for "say" pattern
+                            pattern = r"say\s+([^;]+);"
+                            match = re.search(pattern, self.textbox.get(start_pos, tk.END))
+                            if not match:
+                                break
+                            # Adjust start_pos and end_pos for the matched pattern
+                            start_pos = self.textbox.search(pattern, start_pos, tk.END, regexp=True)
+                            length_of_match = len(match.group(0))  # Includes "say" and semicolon
+                            inner_text_length = len(match.group(1))  # Only the inner text
+                            end_pos = f"{start_pos}+{length_of_match}c"
+                            highlight_start_pos = f"{start_pos}+{length_of_match - inner_text_length - 1}c"
+
+                        else:  # General handling for other patterns
+                            start_pos = self.textbox.search(word, start_pos, tk.END, regexp=True)
+                            if not start_pos:
+                                break
+                            length_of_word = len(re.search(word, self.textbox.get(start_pos, tk.END)).group())
+                            end_pos = f"{start_pos}+{length_of_word}c"
+                            highlight_start_pos = start_pos
+
+                        # Apply tag and configure color
+                        self.textbox.tag_add(word, highlight_start_pos, end_pos)
+                        self.textbox.tag_configure(word, foreground=color)
+                        start_pos = end_pos
+
+            highlight_words(syntax_to_highlight)
+
         else:
             self.filename_label.config(text="No selected file.")
 
@@ -170,7 +217,7 @@ class CBSE:
         """
         self.textbox.delete("1.0", tk.END)
         self.textboxchat.delete("1.0", tk.END)
-        self.filename_label.config(text='')
+        self.filename_label.config(text="No selected file.")
 
     def run(self):
         """
