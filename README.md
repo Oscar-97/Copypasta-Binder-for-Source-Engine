@@ -4,11 +4,13 @@
 <img src="./resources/preview.png" alt="Copypasta Binder for Source Engine Preview"/>
 </p>
 
-CBSE is a utility tool designed for the Source Engine games. It allows players to easily convert text files into bindable .cfg files, facilitating in-game communication by enlightening the mood via copypastas.
+CBSE is a utility tool designed for Source Engine games. It allows players to easily convert text files into `.cfg` files that can spam the game chat, facilitating in-game communication by increasing morale via copypastas.
+
+<b>NOTE!</b> <i>There is no scientific evidence for this, so results may vary depending on the mood of your fellow players.</i>
 
 # Installation
 
-Activate a virtual environment, install the dependencies, and run the `python main.py` command to start the program. Alternatively, download the executable from the releases tab and run it.
+Activate a virtual environment, install the dependencies, and run the `python main.py` command to run the program. Alternatively, download and run the executable from the Releases tab.
 
 1. Clone the repository (Optional):
 
@@ -44,27 +46,24 @@ Activate a virtual environment, install the dependencies, and run the `python ma
 
 ## 2. Using the GUI
 
-- Select a text file and press convert to bind.
-- Click on `Save as CFG` button.
-- Enter a name and save the `.cfg` file to `...\Steam\steamapps\common\Counter-Strike Global Offensive\game\csgo\cfg`.
-- Manually modify the bound button or other preferences by opening the `.cfg` file.
+- Click on the `Choose a file` button.
+- Select a text file and press the `Convert to bind` button.
+- Click the `Save as CFG` button.
+- Enter a name and save the `.cfg` file to, for example, `...\Steam\steamapps\common\Counter-Strike Global Offensive\game\csgo\cfg`.
+- Manually change the bound button or other settings by opening the `.cfg` file.
 
 ## 3. In-Game Usage:
 
 - Press the "INSERT" button to start spamming line by line.
-- ~~Alternatively, set -netconport `<number>` in the startup options along with host and port in the application to automatically spam in-game. Click the remote button to start the process.~~ Not available in CS2 yet :(
+- ~~Alternatively, set -netconport `<number>` in the startup options along with host and port in the application to automatically spam in-game. Click the Remote button to start the process.~~ Not available in CS2 yet :(
 
 # Customization
 
-Modify the `split_text` function in `cbse_functions.py` to adjust the maximum number of characters and the word length according to your preferences.
+Modify the `split_text` function in `cbse_functions.py` to adjust the maximum number of characters and the word length to your needs.
 
-# Why would you need a GUI for this?
+# Building from source
 
-Would it have been sufficient to have no GUI at all? Certainly, this was created mainly to tinker with tkinter and explore its features, while using the [Sun Valley ttk theme](https://github.com/rdbende/Sun-Valley-ttk-theme).
-
-# Building from Source
-
-A specification file is provided for building the project with PyInstaller.
+To build the project with PyInstaller, a specification file is provided.
 
 ```
 pyinstaller CBSE.spec
@@ -73,3 +72,7 @@ pyinstaller CBSE.spec
 # Contributions
 
 Feel free to submit pull requests, open issues, or suggest features.
+
+# Why would you need a GUI for this?
+
+Would it have been sufficient to have no GUI at all? Sure. This was created mainly to tinker with tkinter and explore its features, while using the [Sun Valley ttk theme](https://github.com/rdbende/Sun-Valley-ttk-theme).
