@@ -1,6 +1,7 @@
 """
 This module provides classes and functions for creating a graphical user interface using Tkinter.
 """
+import re
 import tkinter as tk
 from tkinter import ttk, filedialog
 from utils.cbse_functions import CBSEFunctions
@@ -32,7 +33,7 @@ class CBSE:
         """
         # Create a frame to hold the buttons.
         button_frame = ttk.Frame(self.root)
-        button_frame.grid(row=0, sticky='ew')
+        button_frame.grid(row=0, padx=5, pady=5, sticky='ew')
 
         ip_port_frame = ttk.Frame(self.root)
         ip_port_frame.grid(row=7, padx=5, pady=5, sticky='ew')
@@ -88,7 +89,7 @@ class CBSE:
         Returns a label.
         """
         label = ttk.Label(self.root, text=text, font=custom_font)
-        label.grid(row=row, padx=5, pady=5, sticky='ew')
+        label.grid(row=row, padx=10, pady=5, sticky='ew')
         return label
 
     def create_textbox(self, row):
@@ -96,8 +97,8 @@ class CBSE:
         Returns a textbox.
         """
         textbox = tk.Text(self.root, height=10, width=60,
-                          wrap='word', borderwidth=2, relief="flat")
-        textbox.grid(row=row, padx=5, pady=5, sticky='ew')
+                          wrap='word', borderwidth=2, relief="flat", font="TkFixedFont", state=tk.DISABLED)
+        textbox.grid(row=row, padx=10, pady=5, sticky='ew')
         textbox.configure(background="#262626")
         return textbox
 
@@ -132,10 +133,12 @@ class CBSE:
             first_alias = f'{str_alias} "{str_spam}" "{str_spam}1"'
             counter = 0
 
+            self.textbox.config(state=tk.NORMAL)
             self.textbox.delete("1.0", tk.END)
             self.textbox.insert(tk.END, bind_button + "\n")
             self.textbox.insert(tk.END, first_alias + "\n")
 
+            self.textboxchat.config(state=tk.NORMAL)
             self.textboxchat.delete("1.0", tk.END)
 
             for sentence in enumerate(sentences):
@@ -145,8 +148,60 @@ class CBSE:
                 modified_sentence = cbse_functions.generate_modified_sentence(
                     sentence[1], counter, str_alias, str_spam, str_first_spam, len(sentences))
                 self.textbox.insert(tk.END, modified_sentence + "\n")
+
+            self.highlight_words2()
+
         else:
             self.filename_label.config(text="No selected file.")
+
+    def highlight_words2(self):
+        """
+        Function to apply color to specific words
+        """
+        syntax_to_highlight = {
+            "spam\\d*": "#7E57C2",
+            "bind": "#B39DDB",
+            "say": "#B39DDB",
+            "alias": "#F06292",
+            "INS": "#F52068",
+            "say_pattern": "#9CCC65",
+        }
+
+        for word, color in syntax_to_highlight.items():
+            start_pos = '1.0'
+            while True:
+                # Find the starting position of the word or pattern
+                if word == "say_pattern":  # Specific handling for "say" pattern
+                    pattern = r"say\s+([^;]+);"
+                    match = re.search(
+                        pattern, self.textbox.get(start_pos, tk.END))
+                    if not match:
+                        break
+                    # Adjust start_pos and end_pos for the matched pattern
+                    start_pos = self.textbox.search(
+                        pattern, start_pos, tk.END, regexp=True)
+                    # Includes "say" and semicolon
+                    length_of_match = len(match.group(0))
+                    # Only the inner text
+                    inner_text_length = len(match.group(1))
+                    end_pos = f"{start_pos}+{length_of_match}c"
+                    highlight_start_pos = f"{start_pos}+{length_of_match - inner_text_length - 1}c"
+
+                else:  # General handling for other patterns
+                    start_pos = self.textbox.search(
+                        word, start_pos, tk.END, regexp=True)
+                    if not start_pos:
+                        break
+                    length_of_word = len(
+                        re.search(word, self.textbox.get(start_pos, tk.END)).group())
+                    end_pos = f"{start_pos}+{length_of_word}c"
+                    highlight_start_pos = start_pos
+
+                # Apply tag and configure color
+                self.textbox.tag_add(
+                    word, highlight_start_pos, end_pos)
+                self.textbox.tag_configure(word, foreground=color)
+                start_pos = end_pos
 
     def save_file(self):
         """
@@ -170,7 +225,7 @@ class CBSE:
         """
         self.textbox.delete("1.0", tk.END)
         self.textboxchat.delete("1.0", tk.END)
-        self.filename_label.config(text='')
+        self.filename_label.config(text="No selected file.")
 
     def run(self):
         """
